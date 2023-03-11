@@ -13,9 +13,7 @@
     don't implement any form of artificial intelligence − a random field choice made by the computer is good enough for the game.
 
 '''
-
-from random import randrange
-
+import random
 letO = 'O'
 letX = 'X'
 boardList = [[1, 2, 3], [4, letX, 6], [7, 8, 9]]
@@ -34,7 +32,7 @@ board = f' \
 |       |       |       |\n \
 +-------+-------+-------+'
 playerMoves = []
-pcMoves = []
+pcMoves = [(1, 1)]
 gameEnd = False
 
 
@@ -57,6 +55,7 @@ def display_board(board):
     # The function accepts one parameter containing the board's current status
     # and prints it out to the console.
     print(board)
+    return board
     
 
 def enter_move(placeDict, boardList):
@@ -64,7 +63,6 @@ def enter_move(placeDict, boardList):
     placeMsg = []
     for i in placeKeys:
         placeMsg.append(i)
-    print(placeKeys)
     try:
         playerMove = int(input(f'Enter one of the following places {placeMsg} \n'))
         if playerMove in placeKeys:
@@ -79,7 +77,7 @@ def enter_move(placeDict, boardList):
     except ValueError:
         print('That is not a valid value, please try again')
         enter_move(placeDict, boardList)        
-
+    return boardList
     # The function accepts the board's current status, asks the user about their move, 
     # checks the input, and updates the board according to the user's decision.
 
@@ -98,14 +96,14 @@ def make_list_of_free_fields(board):
             indTuple = (indI, indJ)
             if j is num:
                 # The list consists of tuples
-                move_list.append(indTuple)
+                moveList.append(indTuple)
                 placeDict.update({j: indTuple})
             # Update multiple index variables
             indJ += 1
             num += 1
         indI += 1
     # Know the amount of possible moves left
-    poss_moves = len(move_list)
+    poss_moves = len(moveList)
     print(placeDict)
     # Give back the amount of moves and the list of available locations
     return(poss_moves, moveList, placeDict)
@@ -117,31 +115,35 @@ def make_list_of_free_fields(board):
     # the player using 'O's or 'X's has won the game
 
 
-def draw_move(board, possible_moves, placeDict):
-    cpuChoice = randrange(0, possible_moves)
-    print(cpuChoice)
+def draw_move(board, possible_moves, move_list):
+    # The function draws the computer's move and updates the board.
+    # Get a random number from a list of possible moves
+
+    cpuList = []
     for i in placeDict.keys():
-        if cpuChoice == i:
-            movePlaceCPU = placeDict[i]
-            print(movePlaceCPU)
-            boardList[movePlaceCPU[0]][movePlaceCPU[1]] = letX
-        else: continue
-    countCpu = 0
-    for i in boardList:
-        for t in i:
-            if t == letX:
-                pcMoves.append(placeDict[countCpu])
-            countCpu += 1
+        cpuList.append(i)
+        print(cpuList)
+    print(cpuList)
+    cpuChoice = random.choice(cpuList)
+    print(cpuChoice)
+    movePlaceCPU = placeDict[cpuChoice]
+    print(movePlaceCPU)
+    pcMoves.append(movePlaceCPU)
+    boardList[movePlaceCPU[0]][movePlaceCPU[1]] = letX
     print(pcMoves)
     print(boardList)
+    return boardList
     # The function draws the computer's move and updates the board.
 
-possible_moves = 0
-move_list = []
-possible_moves, moveList, placeDict = make_list_of_free_fields(boardList)
-print(possible_moves)
-print(move_list)
-print(placeDict)
-enter_move(placeDict, boardList)
-draw_move(boardList, possible_moves, placeDict)
-display_board(boardList) 
+
+while gameEnd == False:
+    possible_moves, moveList, placeDict = make_list_of_free_fields(boardList)
+    display_board(boardList) 
+    boardList = enter_move(placeDict, boardList)
+    display_board(boardList)
+    possible_moves, moveList, placeDict = make_list_of_free_fields(boardList) 
+    boardList = draw_move(boardList, possible_moves, moveList)
+    display_board(boardList) 
+    keepPlayin = input("enter another move? (enter: yes; anything: no) ")
+    if keepPlayin != "":
+        break
