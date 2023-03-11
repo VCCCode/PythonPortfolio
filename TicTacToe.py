@@ -71,13 +71,16 @@ def enter_move(placeDict, boardList):
             print(playerMoves)
             boardList[movePlace[0]][movePlace[1]] = letO
             print(boardList)
+        elif len(placeMsg) == 0: 
+            print("There are no more posible moves, game tied")
+            raise SystemExit  
         else:
             print('That is not a valid place, please try again')
             enter_move(placeDict, boardList)
     except ValueError:
         print('That is not a valid value, please try again')
         enter_move(placeDict, boardList)        
-    return boardList
+    return boardList, playerMoves
     # The function accepts the board's current status, asks the user about their move, 
     # checks the input, and updates the board according to the user's decision.
 
@@ -110,7 +113,46 @@ def make_list_of_free_fields(board):
     
 
 
-#def victory_for(board, sign):
+def victory_for(boardList, possible_moves = 8, playerMoves = [], pcMoves = []):
+    pcColumn = []
+    pcRow = []
+    playerColumn = []
+    playerRow = []
+    if possible_moves == 0:
+        print("There are no more posible moves, game tied")
+        display_board(boardList)
+        raise SystemExit
+    if ((0, 0) in pcMoves and (1, 1) in pcMoves and (2, 2) in pcMoves) or ((1, 1) in pcMoves and (0, 2) in pcMoves and (2, 0) in pcMoves):
+        print("PC Wins")
+        display_board(boardList)
+        raise SystemExit
+    elif ((0, 0) in playerMoves and (1, 1) in playerMoves and (2, 2) in playerMoves) or ((1, 1) in playerMoves and (0, 2) in playerMoves and (2, 0) in playerMoves):
+        print("Player Wins")
+        display_board(boardList)
+        raise SystemExit
+    else:
+        for i in pcMoves:
+            pcColumn.append(i[0])
+            pcRow.append(i[1])
+        print(pcColumn)
+        print(pcRow)
+        print(pcColumn.count(0))
+        print(pcColumn.count(1))
+        print(pcColumn.count(2))
+        if pcColumn.count(0) > 2 or pcColumn.count(1) > 2 or pcColumn.count(2) > 2 or \
+            pcRow.count(0) > 2 or pcRow.count(1) > 2 or pcRow.count(2) > 2:
+            print("PC Wins")
+            display_board(boardList)
+            raise SystemExit
+        for j in playerMoves:
+            playerColumn.append(j[0])
+            playerRow.append(j[1])
+        if playerColumn.count(0) > 2 or playerColumn.count(1) > 2 or playerColumn.count(2) > 2 or \
+            playerRow.count(0) > 2 or playerRow.count(1) > 2 or playerRow.count(2) > 2:
+            print("Player Wins")
+            display_board(boardList)
+            raise SystemExit
+
     # The function analyzes the board's status in order to check if 
     # the player using 'O's or 'X's has won the game
 
@@ -118,32 +160,25 @@ def make_list_of_free_fields(board):
 def draw_move(board, possible_moves, move_list):
     # The function draws the computer's move and updates the board.
     # Get a random number from a list of possible moves
-
     cpuList = []
     for i in placeDict.keys():
         cpuList.append(i)
-        print(cpuList)
-    print(cpuList)
     cpuChoice = random.choice(cpuList)
-    print(cpuChoice)
     movePlaceCPU = placeDict[cpuChoice]
-    print(movePlaceCPU)
     pcMoves.append(movePlaceCPU)
     boardList[movePlaceCPU[0]][movePlaceCPU[1]] = letX
-    print(pcMoves)
-    print(boardList)
-    return boardList
+    return boardList, pcMoves
     # The function draws the computer's move and updates the board.
 
 
 while gameEnd == False:
+    display_board(boardList) 
     possible_moves, moveList, placeDict = make_list_of_free_fields(boardList)
-    display_board(boardList) 
-    boardList = enter_move(placeDict, boardList)
+    boardList, playerMoves = enter_move(placeDict, boardList)
     display_board(boardList)
+    victory_for(boardList, possible_moves, playerMoves)
     possible_moves, moveList, placeDict = make_list_of_free_fields(boardList) 
-    boardList = draw_move(boardList, possible_moves, moveList)
+    boardList, pcMoves = draw_move(boardList, possible_moves, moveList)
+    victory_for(boardList, possible_moves, playerMoves, pcMoves)
     display_board(boardList) 
-    keepPlayin = input("enter another move? (enter: yes; anything: no) ")
-    if keepPlayin != "":
-        break
+    
